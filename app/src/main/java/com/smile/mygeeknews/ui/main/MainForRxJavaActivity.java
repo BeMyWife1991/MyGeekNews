@@ -2,7 +2,6 @@ package com.smile.mygeeknews.ui.main;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
@@ -10,6 +9,7 @@ import com.smile.mygeeknews.BuildConfig;
 import com.smile.mygeeknews.R;
 import com.smile.mygeeknews.app.Constants;
 import com.smile.mygeeknews.model.api.HotApi;
+import com.smile.mygeeknews.model.api.HotForRxJavaApi;
 import com.smile.mygeeknews.model.bean.HotListBean;
 import com.smile.mygeeknews.ui.main.adapter.HotAdapter;
 import com.smile.mygeeknews.utils.SystemUtil;
@@ -32,9 +32,15 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity {
+public class MainForRxJavaActivity extends AppCompatActivity {
 
     private static OkHttpClient okHttpClient = null;
 
@@ -61,32 +67,58 @@ public class MainActivity extends AppCompatActivity {
         rvContent.setAdapter(hotAdapter);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(HotApi.HOST)
+                .baseUrl(HotForRxJavaApi.HOST)
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
 
-        HotApi hotApi = retrofit.create(HotApi.class);
-        Call<HotListBean> call = hotApi.getHotList();
+        HotForRxJavaApi hotForRxJavaApi = retrofit.create(HotForRxJavaApi.class);
 
-        call.enqueue(new Callback<HotListBean>() {
-            @Override
-            public void onResponse(Call<HotListBean> call, retrofit2.Response<HotListBean> response) {
-                mList.clear();
-                mList.addAll(response.body().getRecent());
-                hotAdapter.notifyDataSetChanged();
-            }
+        Observable<HotListBean> observeList = hotForRxJavaApi.getHotForObserveList();
 
-            @Override
-            public void onFailure(Call<HotListBean> call, Throwable t) {
+        observeList.compose(MainForRxJavaActivity.<HotListBean>rxSchedulerHelper())
+                .map(new Func1<HotListBean, HotListBean>() {
+                    @Override
+                    public HotListBean call(HotListBean hotListBean) {
+                        return hotListBean;
+                    }
+                })
+                .subscribe(new Action1<HotListBean>() {
+                    @Override
+                    public void call(HotListBean hotListBean) {
+                        mList.clear();
+                        mList.addAll(hotListBean.getRecent());
+                        hotAdapter.notifyDataSetChanged();
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
 
-            }
-        });
+                    }
+                });
+
 
     }
 
     private void initView() {
 
+    }
+
+    /**
+     * 统一线程处理
+     *
+     * @param <T>
+     * @return
+     */
+    public static <T> Observable.Transformer<T, T> rxSchedulerHelper() {    //compose简化线程
+        return new Observable.Transformer<T, T>() {
+            @Override
+            public Observable<T> call(Observable<T> observable) {
+                return observable.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread());
+            }
+        };
     }
 
     private static void initOkHttp() {
@@ -128,16 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 return response;
             }
         };
-//        Interceptor apikey = new Interceptor() {
-//            @Override
-//            public Response intercept(Chain chain) throws IOException {
-//                Request request = chain.request();
-//                request = request.newBuilder()
-//                        .addHeader("apikey",Constants.KEY_API)
-//                        .build();
-//                return chain.proceed(request);
-//            }
-//        }
+
 //        设置统一的请求头部参数
 //        builder.addInterceptor(apikey);
         //设置缓存

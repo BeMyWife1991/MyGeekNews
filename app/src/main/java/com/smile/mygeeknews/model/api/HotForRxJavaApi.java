@@ -11,13 +11,9 @@ import rx.Observable;
  * Created by Tough
  * Data: 2017/2/9  10:14
  */
-public interface HotApi {
+public interface HotForRxJavaApi {
 
     String HOST = "http://news-at.zhihu.com/api/4/";
-
-    //retrofit请求
-    @GET("news/hot")
-    Call<HotListBean> getHotList();
 
     //RxJava结构
     @GET("news/hot")

@@ -29,7 +29,9 @@ public class WelcomeActivity extends SupportActivity {
 
 
     private void jumpMain() {
-        startActivity(new Intent(this, MainActivity.class));
+//        startActivity(new Intent(this, MainForRitrofitActivity.class));
+//        startActivity(new Intent(this, MainForRxJavaActivity.class));
+        startActivity(new Intent(this, MainForMvpActivity.class));
         finish();
     }
 
