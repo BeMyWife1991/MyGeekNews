@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.smile.mygeeknews.R;
 import com.smile.mygeeknews.model.bean.HotListBean;
 
@@ -40,7 +41,8 @@ public class HotAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ViewHolder viewHolder = (ViewHolder) holder;
-        
+        Glide.with(context).load(mList.get(position).getThumbnail()).into(viewHolder.ivItem);
+        viewHolder.tvDailyItemTitle.setText(mList.get(position).getTitle());
     }
 
     @Override
