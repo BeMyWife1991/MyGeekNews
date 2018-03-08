@@ -4,35 +4,42 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
+import android.widget.TextView;
 
 import com.smile.mygeeknews.R;
 
 import me.yokeyword.fragmentation.SupportActivity;
 
-public class WelcomeActivity extends SupportActivity {
-
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            jumpMain();
-        }
-    };
-
+public class WelcomeActivity extends SupportActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
-        handler.sendEmptyMessageDelayed(1, 2000);
+        TextView tvMvp = (TextView) findViewById(R.id.tv_mvp);
+        TextView tvRitrofit = (TextView) findViewById(R.id.tv_ritrofit);
+        TextView tvRxJava = (TextView) findViewById(R.id.tv_rxJava);
+
+        tvMvp.setOnClickListener(this);
+        tvRitrofit.setOnClickListener(this);
+        tvRxJava.setOnClickListener(this);
+
     }
 
-
-    private void jumpMain() {
-//        startActivity(new Intent(this, MainForRitrofitActivity.class));
-//        startActivity(new Intent(this, MainForRxJavaActivity.class));
-        startActivity(new Intent(this, MainForMvpActivity.class));
-        finish();
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tv_mvp:
+                startActivity(new Intent(this, MainForMvpActivity.class));
+                break;
+            case R.id.tv_ritrofit:
+                startActivity(new Intent(this, MainForRitrofitActivity.class));
+                break;
+            case R.id.tv_rxJava:
+                startActivity(new Intent(this, MainForRxJavaActivity.class));
+                break;
+        }
     }
-
 }
