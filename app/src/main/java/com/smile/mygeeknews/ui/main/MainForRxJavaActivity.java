@@ -78,12 +78,12 @@ public class MainForRxJavaActivity extends AppCompatActivity {
         Observable<HotListBean> observeList = hotForRxJavaApi.getHotForObserveList();
 
         observeList.compose(MainForRxJavaActivity.<HotListBean>rxSchedulerHelper())
-                .map(new Func1<HotListBean, HotListBean>() {
-                    @Override
-                    public HotListBean call(HotListBean hotListBean) {
-                        return hotListBean;
-                    }
-                })
+//                .map(new Func1<HotListBean, HotListBean>() {
+//                    @Override
+//                    public HotListBean call(HotListBean hotListBean) {
+//                        return hotListBean;
+//                    }
+//                })
                 .subscribe(new Action1<HotListBean>() {
                     @Override
                     public void call(HotListBean hotListBean) {
@@ -98,6 +98,11 @@ public class MainForRxJavaActivity extends AppCompatActivity {
                     }
                 });
 
+        List<HotListBean> hotListBeans = new ArrayList<>();
+        HotListBean[] hotListBeans1 = new HotListBean[5];
+
+
+        Observable.from(hotListBeans);
 
     }
 
